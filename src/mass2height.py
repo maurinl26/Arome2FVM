@@ -9,33 +9,15 @@ def mass2height_coordinates(
     temperature: np.ndarray,
     z_surface: np.ndarray,
     Rd: float,
-    cpd: float,
+    Rd_cpd: float,
     gravity0: float,
     nx: int,
     ny: int,
     nz: int,
+    nz_interfaces: int,
 ):
-    """_summary_
 
-    Args:
-        hybrid_coef_A (np.ndarray): _description_
-        hybrid_coef_B (np.ndarray): _description_
-        surface_pressure (np.ndarray): _description_
-        temperature (np.ndarray): _description_
-        z_surface (np.ndarray): _description_
-        nx (int): _description_
-        ny (int): _description_
-        nz (int): _description_
-        Rd (float): _description_
-        cpd (float): _description_
-        gravity0 (float): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    Rd_cpd = Rd / cpd
-
-    z_tilde = np.zeros((nx, ny, nz + 1))
+    z_tilde = np.zeros((nx, ny, nz_interfaces))
     delta_p_rel = np.zeros((nx, ny, nz))
 
     # 91 niveaux (0 -> 90)
