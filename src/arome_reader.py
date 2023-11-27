@@ -80,3 +80,9 @@ class AromeReader:
 
     def get_surface_pressure(self):
         return self.ds["SURFPRESSION"][...]
+
+    def get_spacing(self):
+        dx = self.ds["Projection_parameters"].x_resolution
+        dy = self.ds["Projection_parameters"].y_resolution
+
+        return dx, dy

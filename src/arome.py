@@ -8,7 +8,9 @@ from functools import cached_property
 from typing import TYPE_CHECKING
 
 from arome_reader import AromeReader
+from levels import LevelOrder
 from levels_conversion import mass2height_coordinates
+from vertical_velocity import vertical_divergence_to_vertical_velocity
 
 if TYPE_CHECKING:
     from fvms.model.config import Config
@@ -24,17 +26,25 @@ from fvms.utils.storage import Field, to_numpy
 from fvms.utils.typingx import Triple
 
 
-class AROME(Config):
+class Arome(Config):
 
     arome_reader: AromeReader
 
+    # Vertical temperature gradient
     ps_ref: float = 101325
     ts_ref: float = 288.15
     t_tropo_ref: float = 220
-    gamma: float = -0.0065  # Vertical temperature gradient
+    gamma: float = -0.0065
 
-    def __init__(self, arome_file: str):
+    # Indexing of vertical levels
+    arome_level_order: LevelOrder = LevelOrder.TOP_TO_BOTTOM
+    fvm_level_order: LevelOrder = LevelOrder.BOTTOM_TO_TOP
+
+    def __init__(self, arome_file: str, config_file: str):
+
+        # Initiate config file
         super().__init__()
+        super().from_file(config_file)
 
         # AROME Reader
         arome_reader = AromeReader(arome_file)
@@ -51,9 +61,10 @@ class AROME(Config):
         self.Gs = self.ts_ref * self.Rd / self.gravity0
         self.Hs = self.gamma / self.ts_ref
 
-        # TODO : refactor
+        # nx, ny, nz
         self.dims = arome_reader.get_dims()
 
+        # Fields from AROME file
         self.vertical_divergence = arome_reader.get_vertical_divergence()
         self.vel_surface = arome_reader.get_surface_velocities()
         self.surface_geopotential = arome_reader.get_surface_geopotential()
@@ -85,15 +96,15 @@ class AROME(Config):
         )
 
         # define functions for further use
-        self.define_orography = self.define_orography_from_arome
-        self.define_vertical_coordinate = self.define_vertical_coordinate
         self.zcr = self.zcr()
 
-    def define_orography_from_arome(
+    # @overide
+    def define_orography(
         self, grid: Grid = None, horizontal_coordinates: HorizontalCoordinates = None
     ) -> np.ndarray:
         return self.zorog
 
+    # @overide
     def define_vertical_coordinate(
         self,
         grid: Grid = None,
@@ -106,72 +117,26 @@ class AROME(Config):
 
     def vertical_velocity(
         self,
-        u_surface: np.ndarray,
-        v_surface: np.ndarray,
-        surface_geopotential: np.ndarray,
-        vertical_divergence: np.ndarray,
-        dx: float = 1250,
-        dy: float = 1250,
     ) -> np.ndarray:
-        """Compute vertical velocity from vertical divergence and surface wind.
 
-        Args:
-            u_surface (np.ndarray): u wind at surface
-            v_surface (np.ndarray): v wind at surface
-            surface_geopotential (np.ndarray): geopotential on surface
-            vertical_divergence (np.ndarray): vertical divergence on the whole domain
-            dx (float, optional): x spacing. Defaults to 1250.
-            dy (float, optional): y spacing. Defaults to 1250.
-        """
-
-        # Geopotential
-        geopo = self.zcr() * self.gravity0
-        d_geopo = np.gradient(geopo, axis=2)
-
-        # Surface vertical wind speed
-        d_surf_geopo_dx, d_surf_geopo_dy = np.gradient(surface_geopotential, dx, dy)
-        w0 = (u_surface * d_surf_geopo_dx + v_surface * d_surf_geopo_dy) / self.gravity0
-
-        # Vertical velocity
-        wvel = vertical_divergence / (self.gravity0 * d_geopo)
-        wvel[:, :, 0] += w0.T
-        wvel = np.cumsum(wvel, axis=2)
-
-        return wvel
-
-    # TODO : replace analytical by numerical computation
-    @cached_property
-    def hydrostatic_pressure(
-        self,
-        hybrid_coef_A: np.ndarray,
-        hybrid_coef_B: np.ndarray,
-        surface_pressure: np.ndarray,
-        nz: int = 90,
-    ) -> np.ndarray:
-        """Compute hydrostatic pressure on cells centers from
-        A, B, and surface pressure coefficients.
-
-        Args:
-            ds (nc.Dataset): arome historic data
-        """
-        hydrostatic_pressure_faces = (
-            hybrid_coef_A[np.newaxis, np.newaxis, :]
-            + surface_pressure.T[:, :, np.newaxis]
-            * hybrid_coef_B[np.newaxis, np.newaxis, :]
+        vertical_velocity = vertical_divergence_to_vertical_velocity(
+            self.zcr,
+            self.surface_geopotential,
+            self.vel_surface[0],
+            self.vel_surface[1],
+            self.vertical_divergence,
+            self.gravity0,
         )
 
-        # Face to center cells
-        hydrostatic_pressure = 0.5 * (
-            hydrostatic_pressure_faces[:, :, :nz] + hydrostatic_pressure_faces[:, :, 1:]
-        )
+        return vertical_velocity
 
-        return hydrostatic_pressure
-
-    # TODO : replace analytical by numerical computation
     @cached_property
     def zcr(self) -> np.ndarray:
-        """Compute zcr (z coordinates) based on hydrostatic pressure"""
-        # Z below tropopause
+        """Compute z coordinates given mass based coefficients.
+
+        Returns:
+            np.ndarray: hei
+        """
 
         z_coordinate = mass2height_coordinates(
             self.hybrid_coef_A,
@@ -179,14 +144,15 @@ class AROME(Config):
             self.surface_pressure,
             self.temperature,
             self.zorog,
+            self.Rd,
             self.Rd_cpd,
-            self.cpd,
             self.gravity0,
             **self.dims,
         )
         return z_coordinate
 
-    ##### Methods used in   thermodynamics.py
+    ##### Methods used in fvms.initialization.
+    #                   thermodynamics.py
     #                   velocity.py
     #                   idealized.py (optional)
     #                       testcase_handle.set_theta(theta)
@@ -211,4 +177,4 @@ class AROME(Config):
         # Convert divergence for vertical velocity to vertical velocity
         vel[0] = self.horizontal_velocities[0]
         vel[1] = self.horizontal_velocities[1]
-        vel[3] = self.vertical_velocity()
+        vel[2] = self.vertical_velocity()
