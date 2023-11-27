@@ -11,6 +11,8 @@ def vertical_divergence_to_vertical_velocity(
     alpha: np.ndarray,
     delta_p_rel: np.ndarray,
     gravity0: np.ndarray,
+    dx: float,
+    dy: float,
     nz: int,
 ) -> np.ndarray:
     """Computes vertical velocity from vertical divergence.

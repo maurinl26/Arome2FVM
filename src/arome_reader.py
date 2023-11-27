@@ -9,7 +9,6 @@ from levels import LevelOrder
 class AromeReader:
 
     ds: nc.Dataset
-    level_order: LevelOrder = LevelOrder.TOP_TO_BOTTOM
 
     def __init__(self, filename: str):
         self.ds = nc.Dataset(filename)
@@ -26,14 +25,25 @@ class AromeReader:
     def get_nz(self):
         return self.ds.dimensions["Z"].size
 
-    def get_dims(self):
-        return {"nx": self.get_nx(), "ny": self.get_ny(), "nz": self.get_nz()}
-
     def get_nz_tilde(self):
         return self.ds.dimensions["Z+1"].size
 
+    def get_spacing(self):
+        dx = self.ds["Projection_parameters"].x_resolution
+        dy = self.ds["Projection_parameters"].y_resolution
+
+        return dx, dy
+
+    def get_dims(self):
+        return {"nx": self.get_nx(), "ny": self.get_ny(), "nz": self.get_nz()}
+
+    def get_dims_interfaces(self):
+        return {"nx": self.get_nx(), "ny": self.get_ny(), "nz+1": self.get_nz_tilde()}
+
     def get_vertical_divergence(self) -> np.ndarray:
-        vertical_divergence = np.zeros((self.nx, self.ny, self.nz))
+        vertical_divergence = np.zeros(
+            (self.get_nx(), self.get_ny(), self.get_nz_tilde())
+        )
         for i in range(self.nz):
             vertical_divergence[:, :, i] = self.ds[f"S{self.nz - i:0>3}VERTIC.DIVER"][
                 ...
@@ -42,13 +52,13 @@ class AromeReader:
         return vertical_divergence
 
     def get_surface_velocities(self) -> Tuple[np.ndarray]:
-        return self.ds["S090WIND.U.PHYS"][...], self.ds["S090WIND.V.PHYS"][...]
+        return self.ds["S090WIND.U.PHYS"][...].T, self.ds["S090WIND.V.PHYS"][...].T
 
     def get_surface_geopotential(self) -> np.ndarray:
-        return self.ds["SPECSURFGEOPOTEN"][...]
+        return self.ds["SPECSURFGEOPOTEN"][...].T
 
     def get_temperature(self) -> np.ndarray:
-        temperature = np.zeros((self.nx, self.ny, self.nz))
+        temperature = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_tilde()))
 
         for i in range(self.nz):
             temperature[:, :, i] = self.ds[f"S{self.nz - i:0>3}TEMPERATURE"][...].T
@@ -56,15 +66,15 @@ class AromeReader:
         return temperature
 
     def get_pressure(self) -> np.ndarray:
-        nh_pressure = np.zeros((self.nx, self.ny, self.nz))
+        nh_pressure = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_tilde()))
         for i in range(self.nz):
             nh_pressure[:, :, i] = self.ds[f"S{self.nz - i:0>3}PRESS.DEPART"][...].T
 
         return nh_pressure
 
     def get_horizontal_velocities(self) -> Tuple[np.ndarray]:
-        uvel = np.zeros((self.nx, self.ny, self.nz))
-        vvel = np.zeros((self.nx, self.ny, self.nz))
+        uvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_tilde()))
+        vvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_tilde()))
 
         for i in range(self.nz):
             uvel[:, :, i] = self.ds[f"S{self.nz - i:0>3}WIND.U.PHYS"][...].T
@@ -73,16 +83,10 @@ class AromeReader:
         return uvel, vvel
 
     def get_hybrid_coef_A(self):
-        return self.ds["hybrid_coef_A"][...]
+        return self.ds["hybrid_coef_A"][...].T
 
     def get_hybrid_coef_B(self):
-        return self.ds["hybrid_coef_B"][...]
+        return self.ds["hybrid_coef_B"][...].T
 
     def get_surface_pressure(self):
-        return self.ds["SURFPRESSION"][...]
-
-    def get_spacing(self):
-        dx = self.ds["Projection_parameters"].x_resolution
-        dy = self.ds["Projection_parameters"].y_resolution
-
-        return dx, dy
+        return self.ds["SURFPRESSION"][...].T
