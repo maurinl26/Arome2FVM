@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 from arome_reader import AromeReader
 from levels import LevelOrder
-from levels_conversion import mass2height_coordinates
+from mass2height import mass2height_coordinates
 from vertical_velocity import vertical_divergence_to_vertical_velocity
 
 if TYPE_CHECKING:
@@ -37,8 +37,8 @@ class Arome(Config):
     gamma: float = -0.0065
 
     # Indexing of vertical levels
-    arome_level_order: LevelOrder = LevelOrder.TOP_TO_BOTTOM
-    fvm_level_order: LevelOrder = LevelOrder.BOTTOM_TO_TOP
+    arome_level_order: LevelOrder = LevelOrder(-1)
+    fvm_level_order: LevelOrder = LevelOrder(1)
 
     def __init__(self, arome_file: str, config_file: str):
 
