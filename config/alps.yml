@@ -1,0 +1,136 @@
+model:
+  elastic_density: True
+  beta_plane: True
+
+isetup:
+    testcase: arome
+    # file: ../sandbox/orography_files/historic.arome.nc
+
+
+advection:
+   scheme: mpdata_unsplit
+   density: True
+   tracer: False
+   uvel: True
+   theta_total: True
+   theta_perturbation: True
+   exner: True
+
+diffusion:
+    enabled: True
+    constant: 0.1
+    prandtl: 1
+    uvelx: True
+    uvely: True
+    uvelz: True
+    theta_perturbation: True
+
+
+helmholtz:
+  acoustic: implicit
+
+nx: 1013
+xmin: -633125
+xmax: 633125
+bcx_kind: 0
+
+ny: 757
+ymin: -473125
+ymax: 473125
+bcy_kind: 0
+
+nz: 90
+zmin: 0.0
+zmax:
+bcz_kind: 0
+
+dt: 0.25
+
+model_starttime: 0.0
+model_endtime: 21600.0
+
+courant: "1d"
+
+tout_info: 300
+outer_nstep: 1
+
+loutput_data: True
+output_fields:
+  - theta_total
+  - theta_perturbation
+  - theta_ambient
+  - exner_total
+  - exner_perturbation
+  - exner_ambient
+  - density
+  - pressure
+
+
+constants:
+    angle0: 46
+    # Latitude de référence projection conique
+
+# Given from AROME
+total_fields:
+    velocity_definition: uniform
+    velocity_x: 20.0
+    velocity_y: 0.0
+    velocity_z: 0.0
+    thermodynamic_definition: isothermal
+    t00: 239.5
+    theta00: 239.5
+    stb00: 4.0791e-5
+
+
+ambient_fields: &ambient_fields
+    velocity_definition: uniform
+    velocity_x: 0
+    velocity_y: 0.0
+    velocity_z: 0.0
+    thermodynamic_definition: isothermal
+    t00: 239.5
+    theta00: 239.5
+    stb00: 4.0791e-5
+
+relaxation_fields: *ambient_fields
+
+define_horizontal_coordinates:
+  func: fvms.geometry.horizontal_coordinates.identity
+
+
+define_orography:
+  func: from_file
+  args:
+    filename: ./files/arome.nc
+    varname: orog
+
+define_orography_smooth:
+  func: fvms.geometry.orography.none
+
+define_vertical_coordinate:
+  func: from_file
+  args:
+    filename: ./files/arome.nc
+    varname: zcr
+
+define_vertical_coordinate_stretching:
+  func: fvms.geometry.vertical_coordinate_stretching.none
+
+mpdata:
+  order: 2
+  cc3rd: False
+  gauge: True
+  nonos: True
+
+# Lié à Helmoltz
+gcrk:
+  order: 3
+  restol: 1.0e-6
+  precon: True
+  line_jacobi: True
+
+# Absorption des ondes aux bornes du domaine (ex : en altitude)
+absorber:
+    wtop: True
+    wtop_tscale: 10.0
+    wtop_depth: 10000.0
