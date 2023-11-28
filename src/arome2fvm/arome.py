@@ -10,21 +10,13 @@ from typing import TYPE_CHECKING
 import yaml
 
 from arome_reader import AromeReader
-from levels import LevelOrder
 from mass2height import mass2height_coordinates
 from vertical_velocity import vertical_divergence_to_vertical_velocity
-
-if TYPE_CHECKING:
-    from fvms.model.config import Config
-    from fvms.utils.storage import Field
-    from fvms.utils.typingx import Triple
 
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-from fvms.geometry.coordinates import Grid, HorizontalCoordinates
-from fvms.model.config import Config
-from fvms.utils.storage import Field, to_numpy
+from fvms.utils.storage import Field
 from fvms.utils.typingx import Triple
 
 
