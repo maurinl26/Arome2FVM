@@ -7,6 +7,8 @@ import numpy as np
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+import yaml
+
 from arome_reader import AromeReader
 from levels import LevelOrder
 from mass2height import mass2height_coordinates
@@ -26,7 +28,7 @@ from fvms.utils.storage import Field, to_numpy
 from fvms.utils.typingx import Triple
 
 
-class Arome(Config):
+class Arome:
 
     arome_reader: AromeReader
 
@@ -37,17 +39,13 @@ class Arome(Config):
     gamma: float = -0.0065
 
     # Indexing of vertical levels
-    arome_level_order: LevelOrder = LevelOrder(-1)
-    fvm_level_order: LevelOrder = LevelOrder(1)
+    # arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
+    # fvm_level_order: LevelOrder = LevelOrder(LevelOrder.BOTTOM_TO_TOP)
 
     def __init__(self, arome_file: str, config_file: str):
 
-        # Initiate config file
-        super().__init__()
-        super().from_file(config_file)
-
         # AROME Reader
-        arome_reader = AromeReader(arome_file)
+        self.arome_reader = AromeReader(arome_file)
 
         # Constants (from FVM config)
         self.Rd = self.constants.Rd
@@ -62,12 +60,12 @@ class Arome(Config):
         self.Hs = self.gamma / self.ts_ref
 
         # nx, ny, nz
-        self.dims = arome_reader.get_dims()
+        self.dims = self.arome_reader.get_dims()
 
         # Fields from AROME file
-        self.vertical_divergence = arome_reader.get_vertical_divergence()
-        self.vel_surface = arome_reader.get_surface_velocities()
-        self.surface_geopotential = arome_reader.get_surface_geopotential()
+        self.vertical_divergence = self.arome_reader.get_vertical_divergence()
+        self.vel_surface = self.arome_reader.get_surface_velocities()
+        self.surface_geopotential = self.arome_reader.get_surface_geopotential()
 
         self.zorog = self.surface_geopotential / self.gravity0
 
@@ -80,40 +78,16 @@ class Arome(Config):
         )
 
         # Other fields
-        self.temperature = arome_reader.get_temperature()
-        self.pressure = arome_reader.get_pressure()
-        self.horizontal_velocities = arome_reader.get_horizontal_velocities()
+        self.temperature = self.arome_reader.get_temperature()
+        self.pressure = self.arome_reader.get_pressure()
+        self.horizontal_velocities = self.arome_reader.get_horizontal_velocities()
 
-        self.hybrid_coef_A = arome_reader.get_hybrid_coef_A()
-        self.hybrid_coef_B = arome_reader.get_hybrid_coef_B()
-        self.surface_pressure = arome_reader.get_surface_pressure()
-
-        # Hydrostatic pressure
-        self.hydro_press = self.hydrostatic_pressure(
-            hybrid_coef_A=self.hybrid_coef_A,
-            hybrid_coef_B=self.hybrid_coef_B,
-            surface_pressure=self.surface_pressure,
-        )
+        self.hybrid_coef_A = self.arome_reader.get_hybrid_coef_A()
+        self.hybrid_coef_B = self.arome_reader.get_hybrid_coef_B()
+        self.surface_pressure = self.arome_reader.get_surface_pressure()
 
         # define functions for further use
         self.zcr = self.zcr()
-
-    # @overide
-    def define_orography(
-        self, grid: Grid = None, horizontal_coordinates: HorizontalCoordinates = None
-    ) -> np.ndarray:
-        return self.zorog
-
-    # @overide
-    def define_vertical_coordinate(
-        self,
-        grid: Grid = None,
-        zstretch: np.ndarray = None,
-        zorog: np.ndarray = None,
-        bottom: float = None,
-        zorog_smooth: np.ndarray = None,
-    ) -> np.ndarray:
-        return self.zcr()
 
     def vertical_velocity(
         self,
@@ -171,7 +145,7 @@ class Arome(Config):
         exner = (self.pressure / self.p0) ** self.Rd_cpd
 
     def set_rho(self, rho: Field) -> None:
-        rho = self.hydrostatic_pressure / (self.Rd * self.temperature)
+        rho = self.pressure / (self.Rd * self.temperature)
 
     def set_velocity(self, vel: Triple[Field]) -> None:
         # Convert divergence for vertical velocity to vertical velocity
