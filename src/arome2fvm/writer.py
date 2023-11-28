@@ -3,31 +3,6 @@ import yaml
 from arome import Arome
 import netCDF4 as nc
 
-
-def update_config(config_file: str, arome: Arome):
-
-    with open(config_file, "rw") as f:
-        config_dict = yaml.load(f)
-
-        config_dict.update(
-            {
-                "define_orography": {
-                    "func": "fvms.geometry.orography.from_file",
-                    "args": {"filename": "../files/arome_state.nc", "varname": "orog"},
-                    "define_vertical_coordinate": {
-                        "func": "fvms.geometry.vertical_coordinate.from_file",
-                        "args": {
-                            "filename": "../files/arome_state.nc",
-                            "varname": "zcr",
-                        },
-                    },
-                }
-            }
-        )
-
-        yaml.dump(config_dict, config_file)
-
-
 def write_state(config: Arome, data_file: str):
 
     rootgrp = nc.Dataset(data_file, "w")
