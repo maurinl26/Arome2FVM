@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import yaml
-from arome import Arome
+from arome2fvm.arome import Arome
 import netCDF4 as nc
 
 def write_state(config: Arome, data_file: str):

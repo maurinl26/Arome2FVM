@@ -3,9 +3,6 @@ from typing import Tuple
 import netCDF4 as nc
 import numpy as np
 
-from levels import LevelOrder
-
-
 class AromeReader:
 
     ds: nc.Dataset

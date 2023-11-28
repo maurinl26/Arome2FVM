@@ -9,9 +9,9 @@ from typing import TYPE_CHECKING
 
 import yaml
 
-from arome_reader import AromeReader
-from mass2height import mass2height_coordinates
-from vertical_velocity import vertical_divergence_to_vertical_velocity
+from arome2fvm.arome_reader import AromeReader
+from arome2fvm.mass2height import mass2height_coordinates
+from arome2fvm.vertical_velocity import vertical_divergence_to_vertical_velocity
 
 from functools import cached_property
 from typing import TYPE_CHECKING
@@ -25,10 +25,11 @@ class Arome:
     arome_reader: AromeReader
 
     # Vertical temperature gradient
-    ps_ref: float = 101325
-    ts_ref: float = 288.15
-    t_tropo_ref: float = 220
-    gamma: float = -0.0065
+    Rd: float = 
+    p0: float
+    gravity0: float
+    cpd: float
+
 
     # Indexing of vertical levels
     # arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
@@ -38,19 +39,7 @@ class Arome:
 
         # AROME Reader
         self.arome_reader = AromeReader(arome_file)
-
-        # Constants (from FVM config)
-        self.Rd = self.constants.Rd
-        self.gravity0 = self.constants.gravity0
-        self.p0 = self.constants.p0
-        self.Rd_p0 = self.constants.Rd_p0
-        self.cpd = self.constants.cpd
-        self.Rd_cpd = self.constants.Rd_cpd
-
-        # Composite constants
-        self.Gs = self.ts_ref * self.Rd / self.gravity0
-        self.Hs = self.gamma / self.ts_ref
-
+        
         # nx, ny, nz
         self.dims = self.arome_reader.get_dims()
 
@@ -103,7 +92,6 @@ class Arome:
         Returns:
             np.ndarray: hei
         """
-
         z_coordinate = mass2height_coordinates(
             self.hybrid_coef_A,
             self.hybrid_coef_B,
