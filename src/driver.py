@@ -2,8 +2,7 @@
 import typer
 
 from arome import Arome
-from fvms.model.config import config_to_file
-from writer import write_state
+from writer import update_config, write_state
 
 
 def main(arome_file: str, config_file: str, data_file: str):
@@ -12,7 +11,7 @@ def main(arome_file: str, config_file: str, data_file: str):
     config = Arome(arome_file)
 
     if config_file is not None:
-        config_to_file(config)
+        update_config(config_file)
 
     if data_file is not None:
         write_state(config, data_file)

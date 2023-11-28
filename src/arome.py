@@ -152,3 +152,10 @@ class Arome:
         vel[0] = self.horizontal_velocities[0]
         vel[1] = self.horizontal_velocities[1]
         vel[2] = self.vertical_velocity()
+
+    def writer(config_file: str):
+
+        with open(config_file, "rw") as f:
+            config_dict = yaml.load(f)
+
+            config_dict.update({})
