@@ -1,0 +1,14 @@
+sandbox
+files/
+
+.dacecache
+.gt_cache
+.vscode
+.venv
+
+__pycache__
+
+
+*.nc
+*.log
+index.txt
