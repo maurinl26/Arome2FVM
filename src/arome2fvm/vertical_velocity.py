@@ -41,9 +41,8 @@ def vertical_divergence_to_vertical_velocity(
     (
         d_specific_surface_geopotential_dx,
         d_specific_surface_geopotential_dy,
-    ) = np.gradient(
-        specific_surface_geopotential, dx, dy
-    )  # ajouter spacing
+    ) = np.gradient(specific_surface_geopotential, dx, dy)
+
     w0 = (
         u_surface * d_specific_surface_geopotential_dx
         + v_surface * d_specific_surface_geopotential_dy

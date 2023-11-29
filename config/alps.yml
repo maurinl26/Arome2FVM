@@ -98,19 +98,18 @@ define_horizontal_coordinates:
   func: fvms.geometry.horizontal_coordinates.identity
 
 
-define_orography:
-  func: from_file
+define_orography: &orography
+  func: fvms.geometry.orography.from_file
   args:
-    filename: ./files/arome.nc
+    filename: ./config/arome.nc
     varname: orog
 
-define_orography_smooth:
-  func: fvms.geometry.orography.none
+define_orography_smooth: *orography
 
 define_vertical_coordinate:
-  func: from_file
+  func: fvms.geometry.orography.from_file
   args:
-    filename: ./files/arome.nc
+    filename: ./config/arome.nc
     varname: zcr
 
 define_vertical_coordinate_stretching:
