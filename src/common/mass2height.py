@@ -83,7 +83,6 @@ def mass2height_coordinates(
     nx: int,
     ny: int,
     nz: int,
-    nz_faces: int,
 ) -> np.ndarray:
     """Converts mass based coordinate to height based terrain following coordinate.
 
