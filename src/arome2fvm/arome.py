@@ -7,17 +7,10 @@ import numpy as np
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-import yaml
-
 from arome2fvm.arome_reader import AromeReader
-from arome2fvm.mass2height import mass2height_coordinates
-from arome2fvm.vertical_velocity import vertical_divergence_to_vertical_velocity
+from common.mass2height import mass2height_coordinates
 
 from functools import cached_property
-from typing import TYPE_CHECKING
-
-from fvms.utils.storage import Field
-from fvms.utils.typingx import Triple
 
 
 class Arome:
@@ -30,7 +23,6 @@ class Arome:
     gravity0: float = 9.80665
     cpd: float = 1004.709
 
-
     # Indexing of vertical levels
     # arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
     # fvm_level_order: LevelOrder = LevelOrder(LevelOrder.BOTTOM_TO_TOP)
@@ -39,13 +31,15 @@ class Arome:
 
         # AROME Reader
         self.arome_reader = AromeReader(arome_file)
-        
+
         # Composite constants
         self.Rd_cpd = self.Rd / self.cpd
-        
+
         # nx, ny, nz
         self.dims = self.arome_reader.get_dims()
         self.nz_faces = self.arome_reader.get_nz_faces()
+
+        self.coordinates()
 
         # Fields from AROME file
         self.vertical_divergence = self.arome_reader.get_vertical_divergence()
@@ -53,7 +47,7 @@ class Arome:
         self.surface_geopotential = self.arome_reader.get_surface_geopotential()
 
         self.zorog = self.surface_geopotential / self.gravity0
-        
+
         # Other fields
         self.temperature = self.arome_reader.get_temperature()
         self.pressure = self.arome_reader.get_pressure()
@@ -63,6 +57,22 @@ class Arome:
         self.hybrid_coef_B = self.arome_reader.get_hybrid_coef_B()
         self.surface_pressure = self.arome_reader.get_surface_pressure()
 
+    def coordinates(self):
+        """Computes horizontal coordinates (cartesian)
+        xc, yc : 1d arrays
+        xcr, ycr: 2d arrays to map the domain (grid)
+        """
+
+        xmin = 0 - self.dims["nx"] * self.arome_reader.get_spacing()[0] / 2
+        xmax = 0 + self.dims["nx"] * self.arome_reader.get_spacing()[0] / 2
+
+        ymin = 0 - self.dims["ny"] * self.arome_reader.get_spacing()[1] / 2
+        ymax = 0 + self.dims["ny"] * self.arome_reader.get_spacing()[1] / 2
+
+        self.xc = np.linspace(xmin, xmax, self.dims["nx"])
+        self.yc = np.linspace(ymin, ymax, self.dims["ny"])
+
+        self.xcr, self.ycr = np.meshgrid(self.xc, self.yc, indexing="ij")
 
     @cached_property
     def zcr(self) -> np.ndarray:
@@ -84,4 +94,3 @@ class Arome:
             **self.dims
         )
         return z_coordinate
-

@@ -12,11 +12,12 @@ def _alpha(p: np.ndarray, p_faces: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: alpha coefficient
     """
-    
+
     alpha = 1 - (p / p_faces[:, :, 1:])
     alpha[:, :, 0] = -1
 
     return alpha
+
 
 def dp_faces_p(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.ndarray:
     """Compute relative diff between delta hydrostatic pressure and mass point pressure on a cell.
@@ -32,18 +33,28 @@ def dp_faces_p(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.nd
     delta_p_rel = np.zeros(p.shape)
     delta_p_rel[:, :, 1:] = delta_p_faces[:, :, 1:] / p[:, :, 1:]
     delta_p_rel[:, :, 0] = -(1 + 1 / Rd_cpd)
-    
+
     return delta_p_rel
 
-def z_faces(z_surface: np.ndarray, temperature: np.ndarray, delta_p_p: np.ndarray, Rd: float, gravity0: float, nx: int, ny: int, nz: int) -> np.ndarray:
+
+def z_faces(
+    z_surface: np.ndarray,
+    temperature: np.ndarray,
+    delta_p_p: np.ndarray,
+    Rd: float,
+    gravity0: float,
+    nx: int,
+    ny: int,
+    nz: int,
+) -> np.ndarray:
     """Compute z coordinate on interface levels.
 
     Args:
-        z_surface (np.ndarray): orography 
+        z_surface (np.ndarray): orography
         temperature (np.ndarray): _description_
         delta_p_p (np.ndarray): relative diff of hydrostatic pressure on cell
         Rd (float): ideal gas constant for dry air
-        gravity0 (float): gravity constant 
+        gravity0 (float): gravity constant
         nz (int): n of levels
 
     Returns:
@@ -56,8 +67,9 @@ def z_faces(z_surface: np.ndarray, temperature: np.ndarray, delta_p_p: np.ndarra
     z_faces[:, :, nz] = z_surface
     for i in range(nz, 0, -1):
         z_faces[:, :, i - 1] = z_faces[:, :, i] - z_temp[:, :, i - 1]
-        
+
     return z_faces
+
 
 def mass2height_coordinates(
     hybrid_coef_A: np.ndarray,
@@ -79,10 +91,10 @@ def mass2height_coordinates(
         hybrid_coef_A (np.ndarray): _description_
         hybrid_coef_B (np.ndarray): _description_
         surface_pressure (np.ndarray): _description_
-        temperature_faces (np.ndarray): temperature on faces 
+        temperature_faces (np.ndarray): temperature on faces
         z_surface (np.ndarray): orography
         Rd (float): constant of ideal gas for dry air
-        Rd_cpd (float): Rd / cpd 
+        Rd_cpd (float): Rd / cpd
         gravity0 (float): constant of gravity
         nx (int): first horizontal dimension
         ny (int): second horizontal dimension
@@ -108,20 +120,9 @@ def mass2height_coordinates(
     # 90 niveaux 0 - 89
     delta_p_rel = dp_faces_p(p, delta_p_tilde, Rd_cpd)
 
-    temperature = np.sqrt(
-        temperature_faces[:, :, 1:] * temperature_faces[:, :, :nz]
-    )
+    temperature = np.sqrt(temperature_faces[:, :, 1:] * temperature_faces[:, :, :nz])
 
-    z_tilde = z_faces(
-        z_surface,
-        temperature,
-        delta_p_rel,
-        Rd,
-        gravity0,
-        nx,
-        ny, 
-        nz
-    )
+    z_tilde = z_faces(z_surface, temperature, delta_p_rel, Rd, gravity0, nx, ny, nz)
 
     alpha = _alpha(p, p_tilde)
 
