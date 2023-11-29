@@ -25,10 +25,10 @@ class Arome:
     arome_reader: AromeReader
 
     # Vertical temperature gradient
-    Rd: float = 
-    p0: float
-    gravity0: float
-    cpd: float
+    Rd: float = 287.059674
+    p0: float = 1000.0e2
+    gravity0: float = 9.80665
+    cpd: float = 1004.709
 
 
     # Indexing of vertical levels
