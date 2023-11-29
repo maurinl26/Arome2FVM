@@ -7,6 +7,7 @@ import numpy as np
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+
 from arome2fvm.arome_reader import AromeReader
 from common.mass2height import mass2height_coordinates
 
@@ -38,6 +39,7 @@ class Arome:
         # nx, ny, nz
         self.dims = self.arome_reader.get_dims()
         self.nz_faces = self.arome_reader.get_nz_faces()
+
 
         self.coordinates()
 
@@ -93,3 +95,4 @@ class Arome:
             **self.dims
         )
         return z_coordinate
+

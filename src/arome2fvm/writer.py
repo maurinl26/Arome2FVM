@@ -6,7 +6,7 @@ import netCDF4 as nc
 def write_state(arome2fvm: Arome, data_file: str):
 
     rootgrp = nc.Dataset(data_file, "w")
-
+    
     rootgrp.createDimension("x", arome2fvm.dims["nx"])
     rootgrp.createDimension("y", arome2fvm.dims["ny"])
     rootgrp.createDimension("z", arome2fvm.dims["nz"])
@@ -27,7 +27,7 @@ def write_state(arome2fvm: Arome, data_file: str):
     zcr_coordinate[:] = arome2fvm.zcr
 
     orog = rootgrp.createVariable("orog", "f8", ("x", "y"))
-    orog[:] = arome2fvm.zorog
+    orog[:] = arome2fvm.zorogs
     orog.unit = "m"
 
     rootgrp.close()

@@ -63,12 +63,14 @@ class AromeReader:
 
     def get_pressure(self) -> np.ndarray:
         nh_pressure = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
+
         for i in range(self.nz):
             nh_pressure[:, :, i] = self.ds[f"S{self.nz - i:0>3}PRESS.DEPART"][...].T
 
         return nh_pressure
 
     def get_horizontal_velocities(self) -> Tuple[np.ndarray]:
+
         uvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
         vvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
 
