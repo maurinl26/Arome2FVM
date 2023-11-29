@@ -3,6 +3,7 @@ from typing import Tuple
 import netCDF4 as nc
 import numpy as np
 
+
 class AromeReader:
 
     ds: nc.Dataset
@@ -38,9 +39,7 @@ class AromeReader:
         return {"nx": self.get_nx(), "ny": self.get_ny(), "nz+1": self.get_nz_faces()}
 
     def get_vertical_divergence(self) -> np.ndarray:
-        vertical_divergence = np.zeros(
-            (self.get_nx(), self.get_ny(), self.get_nz_faces())
-        )
+        vertical_divergence = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
         for i in range(self.nz):
             vertical_divergence[:, :, i] = self.ds[f"S{self.nz - i:0>3}VERTIC.DIVER"][
                 ...
@@ -55,7 +54,7 @@ class AromeReader:
         return self.ds["SPECSURFGEOPOTEN"][...].T
 
     def get_temperature(self) -> np.ndarray:
-        temperature = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_faces()))
+        temperature = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
 
         for i in range(self.nz):
             temperature[:, :, i] = self.ds[f"S{self.nz - i:0>3}TEMPERATURE"][...].T
@@ -63,15 +62,17 @@ class AromeReader:
         return temperature
 
     def get_pressure(self) -> np.ndarray:
-        nh_pressure = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_faces()))
+        nh_pressure = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
+
         for i in range(self.nz):
             nh_pressure[:, :, i] = self.ds[f"S{self.nz - i:0>3}PRESS.DEPART"][...].T
 
         return nh_pressure
 
     def get_horizontal_velocities(self) -> Tuple[np.ndarray]:
-        uvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_faces()))
-        vvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz_faces()))
+
+        uvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
+        vvel = np.zeros((self.get_nx(), self.get_ny(), self.get_nz()))
 
         for i in range(self.nz):
             uvel[:, :, i] = self.ds[f"S{self.nz - i:0>3}WIND.U.PHYS"][...].T
