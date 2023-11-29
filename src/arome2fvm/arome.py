@@ -85,12 +85,11 @@ class Arome:
             hybrid_coef_A=self.hybrid_coef_A,
             hybrid_coef_B=self.hybrid_coef_B,
             surface_pressure=self.surface_pressure,
-            temperature_faces=self.temperature,
+            temperature=self.temperature,
             z_surface=self.zorog,
             Rd=self.Rd,
             Rd_cpd=self.Rd_cpd,
             gravity0=self.gravity0,
-            nz_faces=self.nz_faces,
             **self.dims
         )
         return z_coordinate

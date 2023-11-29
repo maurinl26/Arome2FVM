@@ -75,7 +75,7 @@ def mass2height_coordinates(
     hybrid_coef_A: np.ndarray,
     hybrid_coef_B: np.ndarray,
     surface_pressure: np.ndarray,
-    temperature_faces: np.ndarray,
+    temperature: np.ndarray,
     z_surface: np.ndarray,
     Rd: float,
     Rd_cpd: float,
@@ -88,18 +88,18 @@ def mass2height_coordinates(
     """Converts mass based coordinate to height based terrain following coordinate.
 
     Args:
-        hybrid_coef_A (np.ndarray): _description_
-        hybrid_coef_B (np.ndarray): _description_
-        surface_pressure (np.ndarray): _description_
-        temperature_faces (np.ndarray): temperature on faces
+        hybrid_coef_A (np.ndarray): A coeff on faces
+        hybrid_coef_B (np.ndarray): B coeff on faces (linked with surface pressure)
+        surface_pressure (np.ndarray): surface hydrostatic pressure
+        temperature_faces (np.ndarray): temperature at mass point
         z_surface (np.ndarray): orography
         Rd (float): constant of ideal gas for dry air
         Rd_cpd (float): Rd / cpd
         gravity0 (float): constant of gravity
         nx (int): first horizontal dimension
         ny (int): second horizontal dimension
-        nz (int): vertical levels
-        nz_faces (int): _description_
+        nz (int): vertical levels for mass points
+        nz_faces (int): vertical levels at faces
 
     Returns:
         _type_: _description_
@@ -119,8 +119,6 @@ def mass2height_coordinates(
 
     # 90 niveaux 0 - 89
     delta_p_rel = dp_faces_p(p, delta_p_tilde, Rd_cpd)
-
-    temperature = np.sqrt(temperature_faces[:, :, 1:] * temperature_faces[:, :, :nz])
 
     z_tilde = z_faces(z_surface, temperature, delta_p_rel, Rd, gravity0, nx, ny, nz)
 
