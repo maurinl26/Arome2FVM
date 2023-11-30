@@ -79,10 +79,10 @@ class AromeReader:
         return uvel, vvel
 
     def get_hybrid_coef_A(self):
-        return self.ds["hybrid_coef_A"][...].T
+        return self.ds["hybrid_coef_A"][...]
 
     def get_hybrid_coef_B(self):
-        return self.ds["hybrid_coef_B"][...].T
+        return self.ds["hybrid_coef_B"][...]
 
     def get_surface_pressure(self):
         return self.ds["SURFPRESSION"][...].T

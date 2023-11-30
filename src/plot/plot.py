@@ -15,9 +15,6 @@ def plot_zcr(zcr: np.ndarray, xc: np.ndarray, levels: int):
         grid (Grid): _description_
         zcr (np.ndarray): _description_
     """
-
-    logging.info(f"Max height : {np.max(zcr)}")
-
     _, ny, _ = zcr.shape
 
     fig, ax = plt.subplots(nrows=1)
