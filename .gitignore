@@ -7,7 +7,7 @@ files/
 .venv
 
 __pycache__
-
+sandbox
 
 *.nc
 *.log
