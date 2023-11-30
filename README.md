@@ -28,10 +28,17 @@ epy_conv.py ./files/historic.arome.fa -o nc
 
 ## Extraction of orography and vertical coordinates
 
+- Convert vertical coordinate + orography :
+
 ```
-python src/app.py ../files/historic.arome.nc ./config/arome.nc
+python src/convert.py --arome-file ../files/historic.arome.nc --data-file ./config/arome.nc
 ```
 
+- Plot Z coordinate :
+
+```
+ python src/plot.py --data-file ./config/arome.nc --fig-file ./config/zcr.png
+```
 
 ## Calculations
 
