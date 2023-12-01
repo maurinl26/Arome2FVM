@@ -12,7 +12,7 @@ from common.mass2height import mass2height_coordinates
 
 from functools import cached_property
 
-from levels import LevelOrder
+from arome2fvm.levels import LevelOrder
 
 
 class Arome:
