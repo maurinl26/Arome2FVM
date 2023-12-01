@@ -1,97 +1,138 @@
 # -*- coding: utf-8 -*-
 import numpy as np
+from gt4py.cartesian import stencil, Field
+from gt4py_config import dtype_float, backend
 
 
-def _alpha(p: np.ndarray, p_faces: np.ndarray) -> np.ndarray:
-    """Compute alpha coefficient on each level
+@stencil(backend=backend)
+def _alpha(
+    alpha: Field[dtype_float], p: Field[dtype_float], p_faces: Field[dtype_float]
+) -> Field[dtype_float]:
+    # From top to bottom
+    with computation(BACKWARD):
+        with interval(0, 1):
+            alpha[0, 0, 0] = -1
 
-    Args:
-        p (np.ndarray): hydrostatic pressure (pi) on mass points
-        p_faces (np.ndarray): hydrostatic pressure on faces
-
-    Returns:
-        np.ndarray: alpha coefficient
-    """
-
-    alpha = 1 - (p / p_faces[:, :, 1:])
-    alpha[:, :, 0] = -1
-
-    return alpha
+        with interval(1, -1):
+            alpha[0, 0, 0] = 1 - (p_faces[0, 0, -1 / 2] / p_faces[0, 0, 1 / 2])
 
 
-def dp_faces_p(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.ndarray:
+@stencil(backend=backend)
+def _p_faces(
+    p_faces: Field[dtype_float],
+    hybrid_coef_A: Field[dtype_float],
+    hybrid_coef_B: Field[dtype_float],
+    surface_pressure: Field[dtype_float],
+):
+    with computation(FORWARD), interval(...):
+        p_faces[0, 0, 0] = hybrid_coef_A[0] + hybrid_coef_B[0] * surface_pressure[0, 0]
+
+
+@stencil(backend=backend)
+def _p_mass(p_faces: Field[dtype_float], p: Field[dtype_float]):
+    with computation(FORWARD), interval(...):
+        p[0, 0, 0] = sqrt(p_faces[0, 0, -1 / 2] * p_faces[0, 0, 1 / 2])
+
+
+@stencil(backend=backend)
+def _delta(
+    delta: Field[dtype_float],
+    p: Field[dtype_float],
+    p_faces: Field[dtype_float],
+    Rd_cpd: dtype_float,
+):
     """Compute relative diff between delta hydrostatic pressure and mass point pressure on a cell.
 
     Args:
-        p (np.ndarray): hydrostatic pressure at mass point
-        delta_p_faces (np.ndarray): delta pressure on faces
+        p (Field[dtype_float]): hydrostatic pressure at mass point
+        delta_p_faces (Field[dtype_float]): delta pressure on faces
         Rd_cpd (float): constant for dry air Rd / cpd
 
     Returns:
-        np.ndarray: ratio
+        Field[dtype_float]: ratio
     """
-    delta_p_rel = np.zeros(p.shape)
-    delta_p_rel[:, :, 1:] = delta_p_faces[:, :, 1:] / p[:, :, 1:]
-    delta_p_rel[:, :, 0] = -(1 + 1 / Rd_cpd)
 
-    return delta_p_rel
+    with computation(BACKWARD):
+        with interval(0, 1):
+            delta[0, 0, 0] = 1 + 1 / Rd_cpd
+        with interval(1, -1):
+            delta[0, 0, 0] = (p_faces[0, 0, 1 / 2] - p_faces[0, 0, -1 / 2]) / p[0, 0, 0]
 
 
-def z_faces(
-    z_surface: np.ndarray,
-    temperature: np.ndarray,
-    delta_p_p: np.ndarray,
+@stencil(backend=backend)
+def _z_faces(
+    z_faces: Field[dtype_float],
+    z_surface: Field[dtype_float],
+    z_temp: Field[dtype_float],
+    temperature: Field[dtype_float],
+    delta: Field[dtype_float],
     Rd: float,
     gravity0: float,
-    nx: int,
-    ny: int,
-    nz: int,
-) -> np.ndarray:
+) -> Field[dtype_float]:
     """Compute z coordinate on interface levels.
 
     Args:
-        z_surface (np.ndarray): orography
-        temperature (np.ndarray): _description_
-        delta_p_p (np.ndarray): relative diff of hydrostatic pressure on cell
+        z_surface (Field[dtype_float]): orography
+        temperature (Field[dtype_float]): _description_
+        delta_p_p (Field[dtype_float]): relative diff of hydrostatic pressure on cell
         Rd (float): ideal gas constant for dry air
         gravity0 (float): gravity constant
         nz (int): n of levels
 
     Returns:
-        np.ndarray: z_coordinate on faces
+        Field[dtype_float]: z_coordinate on faces
     """
-    z_temp = (Rd / gravity0) * temperature * delta_p_p
+    with computation(FORWARD), interval(...):
+        z_temp[0, 0, 0] = (Rd / gravity0) * temperature[0, 0, 0] * delta[0, 0, 0]
 
-    z_faces = np.zeros((nx, ny, nz + 1))
-    # Pourrait être assimilé sur Tools
-    z_faces[:, :, nz] = z_surface
-    for i in range(nz, 0, -1):
-        z_faces[:, :, i - 1] = z_faces[:, :, i] - z_temp[:, :, i - 1]
+    with computation(FORWARD):
+        with interval(0, 1):
+            z_faces[0, 0, 0] = z_surface[0, 0]
+        with interval(1, -1):
+            z_faces[0, 0, 0] = z_faces[0, 0, -1] - z_temp[0, 0, 0]
 
     return z_faces
 
 
+@stencil(backend=backend)
+def _z_mass(
+    zcr: Field[dtype_float],
+    z_faces: Field[dtype_float],
+    alpha: Field[dtype_float],
+    delta: Field[dtype_float],
+):
+    with computation(FORWARD), interval(...):
+        factor = alpha[0, 0, 0] / delta[0, 0, 0]
+        zcr[0, 0, 0] = (
+            z_faces[0, 0, -1 / 2] * factor + (1 - factor) * z_faces[0, 0, 1 / 2]
+        )
+
+
 def mass2height_coordinates(
-    hybrid_coef_A: np.ndarray,
-    hybrid_coef_B: np.ndarray,
-    surface_pressure: np.ndarray,
-    temperature: np.ndarray,
-    z_surface: np.ndarray,
+    p: Field[dtype_float],
+    p_faces: Field[dtype_float],
+    zcr: Field[dtype_float],
+    z_faces: Field[dtype_float],
+    hybrid_coef_A: Field[dtype_float],
+    hybrid_coef_B: Field[dtype_float],
+    surface_pressure: Field[dtype_float],
+    temperature: Field[dtype_float],
+    z_surface: Field[dtype_float],
+    z_temp: Field[dtype_float],
+    alpha: Field[dtype_float],
+    delta: Field[dtype_float],
     Rd: float,
     Rd_cpd: float,
     gravity0: float,
-    nx: int,
-    ny: int,
-    nz: int,
-) -> np.ndarray:
+):
     """Converts mass based coordinate to height based terrain following coordinate.
 
     Args:
-        hybrid_coef_A (np.ndarray): A coeff on faces
-        hybrid_coef_B (np.ndarray): B coeff on faces (linked with surface pressure)
-        surface_pressure (np.ndarray): surface hydrostatic pressure
-        temperature_faces (np.ndarray): temperature at mass point
-        z_surface (np.ndarray): orography
+        hybrid_coef_A (Field[dtype_float]): A coeff on faces
+        hybrid_coef_B (Field[dtype_float]): B coeff on faces (linked with surface pressure)
+        surface_pressure (Field[dtype_float]): surface hydrostatic pressure
+        temperature_faces (Field[dtype_float]): temperature at mass point
+        z_surface (Field[dtype_float]): orography
         Rd (float): constant of ideal gas for dry air
         Rd_cpd (float): Rd / cpd
         gravity0 (float): constant of gravity
@@ -105,25 +146,15 @@ def mass2height_coordinates(
     """
 
     # 91 niveaux (0 -> 90)
-    p_tilde = (
-        hybrid_coef_A[np.newaxis, np.newaxis, :]
-        + np.exp(surface_pressure[:, :, np.newaxis])
-        * hybrid_coef_B[np.newaxis, np.newaxis, :]
-    )
 
-    # 90 niveaux (0 -> 89)
-    p = np.sqrt(p_tilde[:, :, 1:] * p_tilde[:, :, :nz])
+    _p_faces(p_faces, hybrid_coef_A, hybrid_coef_B, surface_pressure)
 
-    delta_p_tilde = p_tilde[:, :, :nz] - p_tilde[:, :, 1:]
+    _p_mass(p_faces, p)
 
-    # 90 niveaux 0 - 89
-    delta_p_rel = dp_faces_p(p, delta_p_tilde, Rd_cpd)
+    _alpha(alpha, p, p_faces)
 
-    z_tilde = z_faces(z_surface, temperature, delta_p_rel, Rd, gravity0, nx, ny, nz)
+    _delta(delta, p, p_faces, Rd_cpd)
 
-    alpha = _alpha(p, p_tilde)
+    _z_faces(z_faces, z_surface, z_temp, temperature, delta, Rd, gravity0)
 
-    factor = alpha / delta_p_rel
-    zcr = z_tilde[:, :, :nz] * factor + (1 - factor) * z_tilde[:, :, 1:]
-
-    return zcr
+    _z_mass(zcr, z_faces, alpha, delta)
