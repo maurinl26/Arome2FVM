@@ -13,6 +13,8 @@ from common.mass2height import mass2height_coordinates
 
 from functools import cached_property
 
+from arome2fvm.levels import LevelOrder
+
 
 class Arome:
 
@@ -25,8 +27,8 @@ class Arome:
     cpd: float = 1004.709
 
     # Indexing of vertical levels
-    # arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
-    # fvm_level_order: LevelOrder = LevelOrder(LevelOrder.BOTTOM_TO_TOP)
+    arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
+    fvm_level_order: LevelOrder = LevelOrder(LevelOrder.BOTTOM_TO_TOP)
 
     def __init__(self, arome_file: str):
 

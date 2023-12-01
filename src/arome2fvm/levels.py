@@ -9,5 +9,5 @@ class LevelOrder(Enum):
     BOTTOM_TO_TOP is for axis with 0 at the ground level
     """
 
-    TOP_TO_BOTTOM: -1
-    BOTTOM_TO_TOP: 1
+    TOP_TO_BOTTOM = -1
+    BOTTOM_TO_TOP = 1

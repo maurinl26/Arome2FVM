@@ -1,23 +1,30 @@
 # -*- coding: utf-8 -*-
+from typing import Annotated
 import typer
-
 from pathlib import Path
 import sys
 
 sys.path.append(str(Path(Path.cwd(), "src")))
 sys.path.append(str(Path(Path.cwd().parent.absolute(), "FVM_GT4Py_slim", "src")))
-print(sys.path)
 
 from arome2fvm.arome import Arome
 from arome2fvm.writer import write_state
 
+app = typer.Typer()
 
-def main(arome_file: str, data_file: str):
+
+@app.command()
+def convert(
+    arome_file: Annotated[str, typer.Option(help=".nc datafile with Arome rax fields")],
+    data_file: Annotated[
+        str, typer.Option(help=".nc datafile to dump post-processed file")
+    ],
+):
     """Read .yml configuration
     1. Extract .nc file (issued from AROME .fa state)
     2. Perform conversions
     3. Write state in a .nc file which can be read by FVM
-    
+
 
     Args:
         arome_file (str): arome raw data (.nc)
@@ -33,4 +40,4 @@ def main(arome_file: str, data_file: str):
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    app()

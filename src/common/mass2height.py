@@ -126,4 +126,4 @@ def mass2height_coordinates(
     factor = alpha / delta_p_rel
     zcr = z_tilde[:, :, :nz] * factor + (1 - factor) * z_tilde[:, :, 1:]
 
-    return zcr
+    return np.flip(zcr, 2)
