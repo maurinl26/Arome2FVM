@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def _alpha(p: np.ndarray, p_faces: np.ndarray) -> np.ndarray:
+def _alpha(p: np.ndarray, p_faces: np.ndarray, nz: int) -> np.ndarray:
     """Compute alpha coefficient on each level
 
     Args:
@@ -13,13 +13,13 @@ def _alpha(p: np.ndarray, p_faces: np.ndarray) -> np.ndarray:
         np.ndarray: alpha coefficient
     """
 
-    alpha = 1 - (p / p_faces[:, :, 1:])
-    alpha[:, :, 0] = -1
+    alpha = 1 - (p_faces[:, :, :nz] / p_faces[:, :, 1:])
+    alpha[:, :, 0] = 1
 
     return alpha
 
 
-def dp_faces_p(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.ndarray:
+def _delta(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.ndarray:
     """Compute relative diff between delta hydrostatic pressure and mass point pressure on a cell.
 
     Args:
@@ -32,7 +32,7 @@ def dp_faces_p(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.nd
     """
     delta_p_rel = np.zeros(p.shape)
     delta_p_rel[:, :, 1:] = delta_p_faces[:, :, 1:] / p[:, :, 1:]
-    delta_p_rel[:, :, 0] = -(1 + 1 / Rd_cpd)
+    delta_p_rel[:, :, 0] = 1 + 1 / Rd_cpd
 
     return delta_p_rel
 
@@ -40,7 +40,7 @@ def dp_faces_p(p: np.ndarray, delta_p_faces: np.ndarray, Rd_cpd: float) -> np.nd
 def z_faces(
     z_surface: np.ndarray,
     temperature: np.ndarray,
-    delta_p_p: np.ndarray,
+    delta: np.ndarray,
     Rd: float,
     gravity0: float,
     nx: int,
@@ -60,13 +60,13 @@ def z_faces(
     Returns:
         np.ndarray: z_coordinate on faces
     """
-    z_temp = (Rd / gravity0) * temperature * delta_p_p
+    z_temp = (Rd / gravity0) * temperature * delta
 
     z_faces = np.zeros((nx, ny, nz + 1))
     # Pourrait être assimilé sur Tools
     z_faces[:, :, nz] = z_surface
     for i in range(nz, 0, -1):
-        z_faces[:, :, i - 1] = z_faces[:, :, i] - z_temp[:, :, i - 1]
+        z_faces[:, :, i - 1] = z_faces[:, :, i] + z_temp[:, :, i - 1]
 
     return z_faces
 
@@ -114,16 +114,15 @@ def mass2height_coordinates(
     # 90 niveaux (0 -> 89)
     p = np.sqrt(p_tilde[:, :, 1:] * p_tilde[:, :, :nz])
 
-    delta_p_tilde = p_tilde[:, :, :nz] - p_tilde[:, :, 1:]
+    delta_p_tilde = p_tilde[:, :, 1:] - p_tilde[:, :, :nz]
 
     # 90 niveaux 0 - 89
-    delta_p_rel = dp_faces_p(p, delta_p_tilde, Rd_cpd)
+    delta = _delta(p, delta_p_tilde, Rd_cpd)
+    alpha = _alpha(p, p_tilde, nz)
+    factor = alpha / delta
 
-    z_tilde = z_faces(z_surface, temperature, delta_p_rel, Rd, gravity0, nx, ny, nz)
+    z_tilde = z_faces(z_surface, temperature, delta, Rd, gravity0, nx, ny, nz)
 
-    alpha = _alpha(p, p_tilde)
-
-    factor = alpha / delta_p_rel
     zcr = z_tilde[:, :, :nz] * factor + (1 - factor) * z_tilde[:, :, 1:]
 
     return np.flip(zcr, 2)
