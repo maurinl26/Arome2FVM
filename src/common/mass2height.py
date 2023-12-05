@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from gt4py.cartesian import stencil, Field
-from gt4py_config import dtype_float, backend
+from arome2fvm.gt4py_config import dtype_float, backend
 
 
 @stencil(backend=backend)
@@ -144,8 +144,6 @@ def mass2height_coordinates(
     Returns:
         _type_: _description_
     """
-
-    # 91 niveaux (0 -> 90)
 
     _p_faces(p_faces, hybrid_coef_A, hybrid_coef_B, surface_pressure)
 

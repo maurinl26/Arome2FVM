@@ -1,38 +1,47 @@
 # -*- coding: utf-8 -*-
-import numpy as np
+from gt4py.cartesian import gtscript
+from arome2fvm.gt4py_config import dtype_float
+
+
+def surface_vertical_velocity(
+    u: gtscript.Field[dtype_float],
+    v: gtscript.Field[dtype_float],
+    zorog: gtscript.Field[dtype_float],
+):
+    NotImplemented
 
 
 def vertical_divergence_to_vertical_velocity(
-    zcr: np.ndarray,
-    specific_surface_geopotential: np.ndarray,
-    u_surface: np.ndarray,
-    v_surface: np.ndarray,
-    vertical_divergence: np.ndarray,
-    alpha: np.ndarray,
-    delta_p_rel: np.ndarray,
-    gravity0: np.ndarray,
+    zcr: gtscript.Field[dtype_float],
+    specific_surface_geopotential: gtscript.Field[dtype_float],
+    u_surface: gtscript.Field[dtype_float],
+    v_surface: gtscript.Field[dtype_float],
+    vertical_divergence: gtscript.Field[dtype_float],
+    alpha: gtscript.Field[dtype_float],
+    delta_p_rel: gtscript.Field[dtype_float],
+    gravity0: gtscript.Field[dtype_float],
     dx: float,
     dy: float,
     nz: int,
-) -> np.ndarray:
+) -> gtscript.Field[dtype_float]:
     """Computes vertical velocity from vertical divergence.
 
     Args:
-        zcr (np.ndarray): z coordinates
-        specific_surface_geopotential (np.ndarray): surface geopotential
-        u_surface (np.ndarray): horizontal velocity (first component)
-        v_surface (np.ndarray): horizontal velocity (second component)
-        vertical_divergence (np.ndarray): vertical divergence field from AROME file
-        alpha (np.ndarray): alpha coefficient
-        delta_p_rel (np.ndarray): delta pi coefficient
-        gravity0 (np.ndarray): gravity constant
+        zcr (gtscript.Field[dtype_float]): z coordinates
+        specific_surface_geopotential (gtscript.Field[dtype_float]): surface geopotential
+        u_surface (gtscript.Field[dtype_float]): horizontal velocity (first component)
+        v_surface (gtscript.Field[dtype_float]): horizontal velocity (second component)
+        vertical_divergence (gtscript.Field[dtype_float]): vertical divergence gtscript.Field from AROME file
+        alpha (gtscript.Field[dtype_float]): alpha coefficient
+        delta_p_rel (gtscript.Field[dtype_float]): delta pi coefficient
+        gravity0 (gtscript.Field[dtype_float]): gravity constant
         nz (int): number of vertical levels
 
     Returns:
-        np.ndarray: vertical velocities over the domain
+        gtscript.Field[dtype_float]: vertical velocities over the domain
     """
 
-    # geopotential field
+    # geopotential gtscript.Field
     geopo = zcr * gravity0
 
     d_geopo = np.gradient(geopo, axis=2)
