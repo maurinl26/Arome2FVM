@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from gt4py.storage import zeros
+
+
 fieldnames_nodes_3d = {
     "vertical_divergence": "VERTIC.DIVER",
     "temperature": "TEMPERATURE",
@@ -24,3 +27,13 @@ fieldnames_vertical_faces = {
 }
 
 fieldnames_double = {"vel": ["WIND.U.PHYS", "WIND.V.PHYS"]}
+
+
+class FieldContainer:
+    def __init__(self, indices: Indices):
+        for fieldname in fieldnames_nodes_3d.keys():
+            setattr(self, fieldname, zeros(indices, (I, J, K)))
+        for fieldname in fieldnames_vertical_faces:
+            setattr(self, fieldname, zeros(indices, (K - 1 / 2)))
+        for fieldname in fieldnames_surface:
+            setattr(self, fieldname, zeros(indices, (I, J)))
