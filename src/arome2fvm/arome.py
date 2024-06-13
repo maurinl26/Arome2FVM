@@ -54,12 +54,12 @@ class Arome:
 
         # Other fields
         self.temperature = self.arome_reader.get_temperature()
-        self.pressure = self.arome_reader.get_pressure()
+        self.pressure_departure = self.arome_reader.get_pressure_departure()
         self.horizontal_velocities = self.arome_reader.get_horizontal_velocities()
 
         self.hybrid_coef_A = self.arome_reader.get_hybrid_coef_A()
         self.hybrid_coef_B = self.arome_reader.get_hybrid_coef_B()
-        self.surface_pressure = self.arome_reader.get_surface_pressure()
+        self.surface_pressure = self.arome_reader.get_surface_hyrdostatic_pressure()
 
     def coordinates(self):
         """Computes horizontal coordinates (cartesian)

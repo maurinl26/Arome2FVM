@@ -65,7 +65,7 @@ class AromeReader:
 
         return temperature
 
-    def get_pressure(self) -> np.ndarray:
+    def get_pressure_departure(self) -> np.ndarray:
         nh_pressure = np.zeros((self.nx, self.ny, self.nz))
         for i in range(self.nz):
             nh_pressure[:, :, i] = self.ds[f"S{self.nz - i:0>3}PRESS.DEPART"][...].T
@@ -88,5 +88,5 @@ class AromeReader:
     def get_hybrid_coef_B(self):
         return self.ds["hybrid_coef_B"][...]
 
-    def get_surface_pressure(self):
+    def get_surface_hyrdostatic_pressure(self):
         return self.ds["SURFPRESSION"][...].T

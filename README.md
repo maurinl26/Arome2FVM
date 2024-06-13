@@ -41,4 +41,10 @@ python src/convert.py --arome-file ../files/historic.arome.nc --data-file ./conf
 
 ## Calculations
 
-Conversions from mass based coordinates to height based following ones are implemented following Arome
+Conversions from mass based coordinates to height based following ones are implemented following Arome dynamical kernel specifications.
+
+```
+Bénard P, Vivoda J, Mašek J, Smolı́ková P, Yessad K, Smith Ch, Brožková R, Geleyn J-F. 2010.
+Dynamical kernel of the Aladin–NH spectral limited-area model: Revised formulation and sensitivity
+experiments. Q. J. R. Meteorol. Soc. 136: 155–169. DOI:10.1002/qj.522
+```
