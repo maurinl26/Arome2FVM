@@ -18,14 +18,12 @@ from arome2fvm.writer import write_state
 
 logging.getLogger(__name__)
 
-
-def run() -> None:
+def fvm_driver(arome_file: str, config_file: str, data_file: str) -> None:
     """Run FVM model from an Arome initial state"""
 
-    arome_file = str(Path(Path.cwd().parent.absolute(), "files", "historic.arome.nc"))
-    config_file = str(Path(Path.cwd(), "config", "alps.yml"))
-    data_file = str(Path(Path.cwd(), "config", "arome.nc"))
+    
 
+    logging.info("Launch conversion")
     arome = Arome(config_file=config_file, arome_file=arome_file)
     write_state(arome, data_file)
 
@@ -43,7 +41,13 @@ def run() -> None:
 
 
 if __name__ == "__main__":
-    log = init_logging()
+
     log = logging.getLogger(__name__)
-    run()
+
+    arome_file = str(Path(Path.cwd().parent.absolute(), "files", "historic.arome.nc"))
+    config_file = str(Path(Path.cwd(), "config", "alps.yml"))
+    data_file = str(Path(Path.cwd(), "config", "arome.nc"))
+
+    log.info(f"Launching FVM driver")
+    fvm_driver(arome_file, config_file, data_file)
     log.info(f"Finished test")

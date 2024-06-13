@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 from plot.plot import plot_zcr
-import typer
 from typing import Annotated
 import netCDF4 as nc
 from pathlib import Path
@@ -13,13 +12,10 @@ sys.path.append(str(Path(Path.cwd().parent.absolute(), "FVM_GT4Py_slim", "src"))
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
-app = typer.Typer()
 
-
-@app.command()
 def plot_z_coordinate(
-    data_file: Annotated[str, typer.Option(help="file name of post-processed data")],
-    fig_file: Annotated[str, typer.Option(help="file name to save image")],
+    data_file: str,
+    fig_file: str,
 ):
     ds = nc.Dataset(data_file)
     zcr = ds["zcr"][...]
