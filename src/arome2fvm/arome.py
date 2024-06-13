@@ -3,28 +3,38 @@
     (netCDF4 file converted from a FA file)
     Including orography and vertical coordinate over 90 levels
 """
-import numpy as np
 from functools import cached_property
 from typing import TYPE_CHECKING
 
+import numpy as np
 
 from arome2fvm.arome_reader import AromeReader
-from common.mass2height import mass2height_coordinates
-
-from functools import cached_property
-
 from arome2fvm.levels import LevelOrder
+from common.numpy_stencils.mass2height import mass2height_coordinates
+from dataclasses import asdict, dataclass, field
 
-
-class Arome:
-
-    arome_reader: AromeReader
+@dataclass
+class Constants:
 
     # Vertical temperature gradient
     Rd: float = 287.059674
     p0: float = 1000.0e2
     gravity0: float = 9.80665
     cpd: float = 1004.709
+    Rd_cpd: float = field(init=False)
+
+    def __post_init__(self):
+        self.Rd_cpd = self.Rd / self.cpd
+
+    def dict(self):
+        return {k: str(v) for k, v in asdict(self).items()}
+
+
+
+class Arome:
+
+    arome_reader: AromeReader
+    constants: Constants
 
     # Indexing of vertical levels
     arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
@@ -34,16 +44,13 @@ class Arome:
 
         # AROME Reader
         self.arome_reader = AromeReader(arome_file)
-
-        # Composite constants
-        self.Rd_cpd = self.Rd / self.cpd
+        self.constants = Constants()
 
         # nx, ny, nz
         self.dims = self.arome_reader.get_dims()
         self.nz_faces = self.arome_reader.get_nz_faces()
 
-
-        self.coordinates()
+        self.build_horizontal_coordinates()
 
         # Fields from AROME file
         self.vertical_divergence = self.arome_reader.get_vertical_divergence()
@@ -61,7 +68,7 @@ class Arome:
         self.hybrid_coef_B = self.arome_reader.get_hybrid_coef_B()
         self.surface_pressure = self.arome_reader.get_surface_hyrdostatic_pressure()
 
-    def coordinates(self):
+    def build_horizontal_coordinates(self):
         """Computes horizontal coordinates (cartesian)
         xc, yc : 1d arrays
         xcr, ycr: 2d arrays to map the domain (grid)
