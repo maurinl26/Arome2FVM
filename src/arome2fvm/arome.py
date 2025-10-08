@@ -5,26 +5,17 @@
 """
 import numpy as np
 from functools import cached_property
-from typing import TYPE_CHECKING
-
 
 from arome2fvm.arome_reader import AromeReader
-from operators.mass2height import mass2height_coordinates
-
-from functools import cached_property
-
+from arome2fvm.physical_parameters import PhysicalParameters
+from operators.mass2height import Mass2HeightCoordinates
 from arome2fvm.levels import LevelOrder
 
 
 class Arome:
 
     arome_reader: AromeReader
-
-    # Vertical temperature gradient
-    Rd: float = 287.059674
-    p0: float = 1000.0e2
-    gravity0: float = 9.80665
-    cpd: float = 1004.709
+    physical_parameters: PhysicalParameters
 
     # Indexing of vertical levels
     arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
@@ -34,14 +25,11 @@ class Arome:
 
         # AROME Reader
         self.arome_reader = AromeReader(arome_file)
-
-        # Composite constants
-        self.Rd_cpd = self.Rd / self.cpd
+        self.physical_parameters = PhysicalParameters()
 
         # nx, ny, nz
         self.dims = self.arome_reader.get_dims()
         self.nz_faces = self.arome_reader.get_nz_faces()
-
 
         self.coordinates()
 
@@ -50,7 +38,7 @@ class Arome:
         self.vel_surface = self.arome_reader.get_surface_velocities()
         self.surface_geopotential = self.arome_reader.get_surface_geopotential()
 
-        self.zorog = self.surface_geopotential / self.gravity0
+        self.zorog = self.surface_geopotential / self.physical_parameters.gravity0
 
         # Other fields
         self.temperature = self.arome_reader.get_temperature()
@@ -85,16 +73,11 @@ class Arome:
         Returns:
             np.ndarray: hei
         """
-        z_coordinate = mass2height_coordinates(
+        return Mass2HeightCoordinates()(
             hybrid_coef_A=self.hybrid_coef_A,
             hybrid_coef_B=self.hybrid_coef_B,
             surface_pressure=self.surface_pressure,
             temperature=self.temperature,
             z_surface=self.zorog,
-            Rd=self.Rd,
-            Rd_cpd=self.Rd_cpd,
-            gravity0=self.gravity0,
-            **self.dims
         )
-        return z_coordinate
 

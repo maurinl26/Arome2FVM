@@ -13,10 +13,12 @@ from gt4py.cartesian.gtscript import (
     stencil
 )
 import numpy as np
-from arome2fvm.env import backend
+from arome2fvm.env import BACKEND
+from arome2fvm.physical_parameters import physical_constants
 
 
-@stencil(backend=backend)
+
+@stencil(backend=BACKEND)
 def _alpha(
     pi: Field[np.float64], pi_faces: Field[np.float64]
 ) -> Field[np.float64]:
@@ -39,7 +41,9 @@ def _alpha(
             alpha = 1 - (pi / pi_faces)
 
 
-@stencil(backend=backend)
+@stencil(backend=BACKEND, externals={
+    "Rd_cpd": physical_constants.Rd_cpd
+})
 def _dp_faces_p(
     pi: Field[np.float64], delta_pi_faces: Field[np.float64],
 ) -> Field[np.float64]:
@@ -48,7 +52,6 @@ def _dp_faces_p(
     Args:
         p (Field[np.float64]): hydrostatic pressure at mass point
         delta_p_faces (Field[np.float64]): delta pressure on faces
-        Rd_cpd (float): constant for dry air Rd / cpd
 
     Returns:
         Field[np.float64]: ratio
@@ -65,13 +68,14 @@ def _dp_faces_p(
             delta_p_rel = delta_pi_faces / pi
 
 
-@stencil(backend=backend)
+@stencil(backend=BACKEND, externals={
+    "gravity0": physical_constants.gravity0,
+    "Rd": physical_constants.Rd
+})
 def _z_faces(
     z_surface: Field[IJ, np.float64],
     temperature: Field[np.float64],
     delta_p_p: Field[np.float64],
-    Rd: float,
-    gravity0: float,
 ) -> Field[np.float64]:
     """Compute z coordinate on interface levels.
 
@@ -86,7 +90,11 @@ def _z_faces(
     Returns:
         Field[np.float64]: z_coordinate on faces
     """
-    # TODO : use grid tools from FVM to handle nx, ny, nz
+    
+    from __externals__ import (
+        gravity0,
+        Rd,
+    )
 
     with computation(PARALLEL), interval(...):
         z_temp = (Rd / gravity0) * temperature * delta_p_p
@@ -99,7 +107,7 @@ def _z_faces(
             z_faces[0, 0, 1] = z_faces[0, 0, 0] - z_temp[0, 0, 1]
 
 
-@stencil(backend=backend)
+@stencil(backend=BACKEND)
 def _pressure_from_coeff(
     p_tilde: Field[np.float64],
     hybrid_coef_A: Field[K, np.float64],
@@ -116,7 +124,7 @@ def _pressure_from_coeff(
         p[0, 0, 0] = sqrt(p_tilde[0, 0, 0] * p_tilde[0, 0, 1])
 
 
-@stencil(backend=backend)
+@stencil(backend=BACKEND)
 def _p2zcr(
     alpha: Field[np.float64],
     delta_p_rel: Field[np.float64],
@@ -141,7 +149,6 @@ class Mass2HeightCoordinates:
         surface_pressure: Field[IJ, np.float64],
         temperature: Field[np.float64],
         z_surface: Field[np.float64],
-        zcr: Field[np.float64],
     ) -> Field[np.float64]:
         
         
