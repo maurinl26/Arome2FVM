@@ -3,6 +3,8 @@ from typing import Annotated
 import typer
 import logging
 import netCDF4 as nc
+from pathlib import Path
+import numpy as np
 
 from arome2fvm.arome import Arome
 from arome2fvm.writer import write_state
@@ -12,9 +14,9 @@ app = typer.Typer()
 
 @app.command()
 def convert_vertical_coordinate(
-    arome_file: Annotated[str, typer.Option(help=".nc datafile with Arome raw fields")],
+    arome_file: Annotated[Path, typer.Option(help=".nc datafile with Arome raw fields")],
     data_file: Annotated[
-        str, typer.Option(help=".nc datafile to dump post-processed file")
+        Path, typer.Option(help=".nc datafile to dump post-processed file")
     ],
 ):
     """Read .yml configuration
@@ -38,8 +40,8 @@ def convert_vertical_coordinate(
         
 @app.command()
 def plot_vertical_coordinate(
-    data_file: Annotated[str, typer.Option(help="file name of post-processed data")],
-    fig_file: Annotated[str, typer.Option(help="file name to save image")],
+    data_file: Annotated[Path, typer.Option(help="file name of post-processed data")],
+    fig_file: Annotated[Path, typer.Option(help="file name to save image")],
 ):
     ds = nc.Dataset(data_file)
     zcr = ds["zcr"][...]
