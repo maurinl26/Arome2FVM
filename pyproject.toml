@@ -1,0 +1,11 @@
+[project]
+name = "arome2fvm"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+convert-vertical-coordinate = "drivers.convert:app"
+plot-vertical-coordinate = "drivers.plot:app"
