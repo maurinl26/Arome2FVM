@@ -24,7 +24,7 @@ Command for conversion of an .fa file to a .nc file :
 - Convert vertical coordinate + orography :
 
 ```bash
-    uv run convert-vertical-coordinate \
+    uv run arome2fvm convert-vertical-coordinate \
      --arome-file ../files/historic.arome.nc \
      --data-file ./config/arome.nc
 ```
@@ -32,7 +32,7 @@ Command for conversion of an .fa file to a .nc file :
 - Plot Z coordinate :
 
 ```bash
-    uv run plot-vertical-coordinate \
+    uv run arome2fvm plot-vertical-coordinate \
         --data-file ./config/arome.nc \
         --fig-file ./config/zcr.png
 ```
