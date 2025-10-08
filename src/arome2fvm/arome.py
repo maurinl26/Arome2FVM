@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 
 
 from arome2fvm.arome_reader import AromeReader
-from common.mass2height import mass2height_coordinates
+from operators.mass2height import mass2height_coordinates
 
 from functools import cached_property
 
