@@ -4,41 +4,39 @@ Conversion tool from AROME state variables to FVM ones. Among transformations, m
 
 ## Installation
 
-```
-git clone git@github.com:maurinl26/Arome2FVM.git
-cd $WORKDIR/Arome2FVM
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+```bash
+    git clone https://github.com:maurinl26/Arome2FVM.git
+    cd $WORKDIR/Arome2FVM
+    uv venv
+    source .venv/bin/activate
 ```
 ## EpyGram for raw Arome file .fa to .nc
 
 Conversion from .fa file to .nc file is performed with EPyGram software : https://github.com/UMR-CNRM/EPyGrAM
 
-Installation of EPyGram :
-```
-
-```
-
 Command for conversion of an .fa file to a .nc file :
-```
-epy_conv.py ./files/historic.arome.fa -o nc
+```bash
+    uv run epy_conv.py ./files/historic.arome.fa -o nc
 ```
 
 ## Extraction of orography and vertical coordinates
 
 - Convert vertical coordinate + orography :
 
-```
-python src/convert.py --arome-file ../files/historic.arome.nc --data-file ./config/arome.nc
+```bash
+    uv run arome2fvm convert-vertical-coordinate \
+     --arome-file ../files/historic.arome.nc \
+     --data-file ./config/arome.nc
 ```
 
 - Plot Z coordinate :
 
-```
- python src/plot.py --data-file ./config/arome.nc --fig-file ./config/zcr.png
+```bash
+    uv run arome2fvm plot-vertical-coordinate \
+        --data-file ./config/arome.nc \
+        --fig-file ./config/zcr.png
 ```
 
 ## Calculations
 
-Conversions from mass based coordinates to height based following ones are implemented following Arome
+Conversions from mass based coordinates to height based following ones are implemented following Arome.

@@ -5,7 +5,7 @@ import numpy as np
 
 sys.path.append(os.path.join(os.getcwd(), "src"))
 
-from common.mass2height import mass2height_coordinates
+from operators.mass2height import mass2height_coordinates
 from arome_reader import AromeReader
 
 arome_file = os.path.join(os.getcwd(), "files", "nc_files", "historic.arome.nc")
