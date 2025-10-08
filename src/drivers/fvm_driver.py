@@ -1,13 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
-import logging.config
 import time
 from pathlib import Path
-import sys
-
-sys.path.append(str(Path(Path.cwd(), "src")))
-sys.path.append(str(Path(Path.cwd().parent.absolute(), "FVM_GT4Py_slim", "src")))
-print(sys.path)
 
 import fvms.model.config
 import fvms.model.fields
@@ -17,7 +11,6 @@ from arome2fvm.arome import Arome
 from arome2fvm.writer import write_state
 
 logging.getLogger(__name__)
-
 
 def run() -> None:
     """Run FVM model from an Arome initial state"""

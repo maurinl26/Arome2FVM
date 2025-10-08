@@ -6,7 +6,6 @@
 import numpy as np
 import jax.numpy as jnp
 from functools import cached_property
-from typing import TYPE_CHECKING
 
 from arome2fvm.arome_reader import AromeReader
 from arome2fvm.levels import LevelOrder

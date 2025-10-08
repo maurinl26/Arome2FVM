@@ -6,9 +6,19 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "jax>=0.5.3",
+    "matplotlib>=3.10.6",
+    "netcdf4>=1.7.2",
+    "typer>=0.19.2",
 ]
 
 [dependency-groups]
 dev = [
     "ruff>=0.11.3",
 ]
+
+[build-system]
+build-backend = 'setuptools.build_meta'
+requires = ['setuptools>=65.5.0', 'wheel']
+
+[project.scripts]
+arome2fvm = "drivers.cli:app"

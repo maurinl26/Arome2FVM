@@ -33,7 +33,7 @@ def write_state(arome2fvm: Arome, data_file: str):
     zcr_coordinate[:] = arome2fvm.zcr
 
     orog = rootgrp.createVariable("orog", "f8", ("x", "y"))
-    orog[:] = arome2fvm.zorogs
+    orog[:] = arome2fvm.zorog
     orog.unit = "m"
 
     rootgrp.close()
