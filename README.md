@@ -17,7 +17,7 @@ Conversion from .fa file to .nc file is performed with EPyGram software : https:
 
 Installation of EPyGram :
 ```
-
+uv add epygram
 ```
 
 Command for conversion of an .fa file to a .nc file :

@@ -4,21 +4,20 @@
     Including orography and vertical coordinate over 90 levels
 """
 import numpy as np
+import jax.numpy as jnp
 from functools import cached_property
 from typing import TYPE_CHECKING
 
-
 from arome2fvm.arome_reader import AromeReader
-from common.mass2height import mass2height_coordinates
-
-from functools import cached_property
-
 from arome2fvm.levels import LevelOrder
+from arome2fvm.physical_constants import PhysicalConstants
+from operators.mass2height import mass2height_coordinates
 
 
 class Arome:
 
     arome_reader: AromeReader
+    physical_constants: PhysicalConstants
 
     # Vertical temperature gradient
     Rd: float = 287.059674
@@ -85,16 +84,23 @@ class Arome:
         Returns:
             np.ndarray: hei
         """
+        # Convert numpy arrays to JAX arrays for the mass2height_coordinates function
+        hybrid_coef_A_jax = jnp.array(self.hybrid_coef_A)
+        hybrid_coef_B_jax = jnp.array(self.hybrid_coef_B)
+        surface_pressure_jax = jnp.array(self.surface_pressure)
+        temperature_jax = jnp.array(self.temperature)
+        z_surface_jax = jnp.array(self.zorog)
+        
         z_coordinate = mass2height_coordinates(
-            hybrid_coef_A=self.hybrid_coef_A,
-            hybrid_coef_B=self.hybrid_coef_B,
-            surface_pressure=self.surface_pressure,
-            temperature=self.temperature,
-            z_surface=self.zorog,
+            hybrid_coef_A=hybrid_coef_A_jax,
+            hybrid_coef_B=hybrid_coef_B_jax,
+            surface_pressure=surface_pressure_jax,
+            temperature=temperature_jax,
+            z_surface=z_surface_jax,
             Rd=self.Rd,
             Rd_cpd=self.Rd_cpd,
             gravity0=self.gravity0,
             **self.dims
         )
-        return z_coordinate
-
+        # Convert result back to numpy array if needed
+        return np.array(z_coordinate)

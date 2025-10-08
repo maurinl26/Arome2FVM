@@ -4,6 +4,12 @@ import netCDF4 as nc
 
 
 def write_state(arome2fvm: Arome, data_file: str):
+    """Write orography into a netcdf file.
+
+    Args:
+        arome2fvm (Arome): ororgaphy translation object
+        data_file (str): file to write
+    """
 
     rootgrp = nc.Dataset(data_file, "w")
     

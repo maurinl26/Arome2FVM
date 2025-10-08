@@ -22,7 +22,10 @@ logging.getLogger(__name__)
 def run() -> None:
     """Run FVM model from an Arome initial state"""
 
+    ### arome file is for the orography
     arome_file = str(Path(Path.cwd().parent.absolute(), "files", "historic.arome.nc"))
+    
+    ### config file 
     config_file = str(Path(Path.cwd(), "config", "alps.yml"))
     data_file = str(Path(Path.cwd(), "config", "arome.nc"))
 

@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
-import sys
 
-sys.path.append(os.path.join(os.getcwd(), "src"))
-
-from arome_reader import AromeReader
+from arome2fvm.arome_reader import AromeReader
 
 file = os.path.join(os.getcwd(), "files", "nc_files", "historic.arome.nc")
 reader = AromeReader(file)

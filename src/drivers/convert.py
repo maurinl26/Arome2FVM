@@ -31,13 +31,11 @@ def convert(
         config_file (str): config file (.yml) from FVM
         data_file (str): output file containing vertical coordinates and orography
     """
-
     # Reads AROME file
     arome2fvm = Arome(arome_file)
 
     if data_file is not None:
         write_state(arome2fvm, data_file)
-
 
 if __name__ == "__main__":
     app()
