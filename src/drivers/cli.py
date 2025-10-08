@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from typing import Annotated
 import typer
+import logging
+import netCDF4 as nc
 
 from arome2fvm.arome import Arome
 from arome2fvm.writer import write_state
+from utils.plots import plot_zcr
 
 app = typer.Typer()
 
-
 @app.command()
-def convert(
-    arome_file: Annotated[str, typer.Option(help=".nc datafile with Arome rax fields")],
+def convert_vertical_coordinate(
+    arome_file: Annotated[str, typer.Option(help=".nc datafile with Arome raw fields")],
     data_file: Annotated[
         str, typer.Option(help=".nc datafile to dump post-processed file")
     ],
@@ -32,6 +34,24 @@ def convert(
 
     if data_file is not None:
         write_state(arome2fvm, data_file)
+        
+        
+@app.command()
+def plot_vertical_coordinate(
+    data_file: Annotated[str, typer.Option(help="file name of post-processed data")],
+    fig_file: Annotated[str, typer.Option(help="file name to save image")],
+):
+    ds = nc.Dataset(data_file)
+    zcr = ds["zcr"][...]
+    xc = ds["x"][...]
+
+    logging.info(
+        f"Z coordinate - min, max : {np.min(zcr[:, :, 0])}, {np.min(zcr[:, :, zcr.shape[2] - 1])}"
+    )
+    logging.info
+
+    fig, _ = plot_zcr(zcr, xc, zcr.shape[2])
+    fig.savefig(fig_file)
 
 
 if __name__ == "__main__":

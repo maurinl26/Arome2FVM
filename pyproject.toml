@@ -7,5 +7,4 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.scripts]
-convert-vertical-coordinate = "drivers.convert:app"
-plot-vertical-coordinate = "drivers.plot:app"
+arome2fvm = "drivers.cli:app"
