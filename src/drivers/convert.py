@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 from typing import Annotated
 import typer
-from pathlib import Path
-import sys
-
-sys.path.append(str(Path(Path.cwd(), "src")))
-sys.path.append(str(Path(Path.cwd().parent.absolute(), "FVM_GT4Py_slim", "src")))
 
 from arome2fvm.arome import Arome
 from arome2fvm.writer import write_state

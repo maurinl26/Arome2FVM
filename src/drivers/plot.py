@@ -8,9 +8,6 @@ from pathlib import Path
 import sys
 import logging
 
-sys.path.append(str(Path(Path.cwd(), "src")))
-sys.path.append(str(Path(Path.cwd().parent.absolute(), "FVM_GT4Py_slim", "src")))
-
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
 
 app = typer.Typer()
