@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from arome2fvm.arome import Arome
+from arome2fvm.arome2fvm import Arome2FVM
 import netCDF4 as nc
 
 
-def write_state(arome2fvm: Arome, data_file: str):
+def write_state(arome2fvm: Arome2FVM, data_file: str):
     """Write orography into a netcdf file.
 
     Args:
-        arome2fvm (Arome): ororgaphy translation object
+        arome2fvm (Arome2FVM): ororgaphy translation object
         data_file (str): file to write
     """
 

@@ -13,16 +13,12 @@ from arome2fvm.physical_constants import PhysicalConstants
 from operators.mass2height import mass2height_coordinates
 
 
-class Arome:
+class Arome2FVM:
 
     arome_reader: AromeReader
     physical_constants: PhysicalConstants
 
-    # Vertical temperature gradient
-    Rd: float = 287.059674
-    p0: float = 1000.0e2
-    gravity0: float = 9.80665
-    cpd: float = 1004.709
+
 
     # Indexing of vertical levels
     arome_level_order: LevelOrder = LevelOrder(LevelOrder.TOP_TO_BOTTOM)
@@ -32,9 +28,6 @@ class Arome:
 
         # AROME Reader
         self.arome_reader = AromeReader(arome_file)
-
-        # Composite constants
-        self.Rd_cpd = self.Rd / self.cpd
 
         # nx, ny, nz
         self.dims = self.arome_reader.get_dims()
@@ -96,9 +89,9 @@ class Arome:
             surface_pressure=surface_pressure_jax,
             temperature=temperature_jax,
             z_surface=z_surface_jax,
-            Rd=self.Rd,
-            Rd_cpd=self.Rd_cpd,
-            gravity0=self.gravity0,
+            Rd=self.physical_constants.Rd,
+            Rd_cpd=self.physical_constants.Rd_cpd,
+            gravity0=self.physical_constants.gravity0,
             **self.dims
         )
         # Convert result back to numpy array if needed

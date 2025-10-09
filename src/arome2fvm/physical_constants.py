@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from functools import cached_property
 
-@dataclass
+@dataclass(frozen=True)
 class PhysicalConstants:
     
     # Vertical temperature gradient

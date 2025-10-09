@@ -6,7 +6,7 @@ import netCDF4 as nc
 from pathlib import Path
 import numpy as np
 
-from arome2fvm.arome import Arome
+from arome2fvm.arome2fvm import Arome2FVM
 from arome2fvm.writer import write_state
 from utils.plots import plot_zcr
 
@@ -14,7 +14,7 @@ app = typer.Typer()
 
 @app.command()
 def convert_vertical_coordinate(
-    arome_file: Annotated[Path, typer.Option(help=".nc datafile with Arome raw fields")],
+    arome_file: Annotated[Path, typer.Option(help=".nc datafile with Arome2FVM raw fields")],
     data_file: Annotated[
         Path, typer.Option(help=".nc datafile to dump post-processed file")
     ],
@@ -32,7 +32,7 @@ def convert_vertical_coordinate(
     """
 
     # Reads AROME file
-    arome2fvm = Arome(arome_file)
+    arome2fvm = Arome2FVM(arome_file)
 
     if data_file is not None:
         write_state(arome2fvm, data_file)
@@ -50,7 +50,6 @@ def plot_vertical_coordinate(
     logging.info(
         f"Z coordinate - min, max : {np.min(zcr[:, :, 0])}, {np.min(zcr[:, :, zcr.shape[2] - 1])}"
     )
-    logging.info
 
     fig, _ = plot_zcr(zcr, xc, zcr.shape[2])
     fig.savefig(fig_file)

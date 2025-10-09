@@ -7,13 +7,13 @@ import fvms.model.config
 import fvms.model.fields
 from fvms.genutils.log import init_logging
 from fvms.model.driver import model_driver
-from arome2fvm.arome import Arome
+from arome2fvm.arome2fvm import Arome2FVM
 from arome2fvm.writer import write_state
 
 logging.getLogger(__name__)
 
 def run() -> None:
-    """Run FVM model from an Arome initial state"""
+    """Run FVM model from an Arome2FVM initial state"""
 
     ### arome file is for the orography
     arome_file = str(Path(Path.cwd().parent.absolute(), "files", "historic.arome.nc"))
