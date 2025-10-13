@@ -10,7 +10,7 @@ Conversion tool from AROME state variables to FVM ones. Among transformations, m
     uv venv
     source .venv/bin/activate
 ```
-## EpyGram for raw Arome file .fa to .nc
+## EpyGram for raw Arome2FVM file .fa to .nc
 
 Conversion from .fa file to .nc file is performed with EPyGram software : https://github.com/UMR-CNRM/EPyGrAM
 
@@ -44,4 +44,4 @@ Command for conversion of an .fa file to a .nc file :
 
 ## Calculations
 
-Conversions from mass based coordinates to height based following ones are implemented following Arome.
+Conversions from mass based coordinates to height based following ones are implemented following Arome2FVM.

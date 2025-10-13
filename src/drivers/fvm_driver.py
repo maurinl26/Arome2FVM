@@ -22,7 +22,7 @@ def run() -> None:
     config_file = str(Path(Path.cwd(), "config", "alps.yml"))
     data_file = str(Path(Path.cwd(), "config", "arome.nc"))
 
-    arome = Arome(config_file=config_file, arome_file=arome_file)
+    arome = Arome2FVM(config_file=config_file, arome_file=arome_file)
     write_state(arome, data_file)
 
     fields = fvms.model.fields.FieldContainer(arome.fvm_config.indices)

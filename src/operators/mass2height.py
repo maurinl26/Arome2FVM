@@ -42,7 +42,7 @@ def dp_faces_p(p: jnp.ndarray, delta_p_faces: jnp.ndarray, Rd_cpd: float) -> jnp
 def z_faces(
     z_surface: jnp.ndarray,
     temperature: jnp.ndarray,
-    delta_p_p: jnp.ndarray,
+    delta_pi_pi: jnp.ndarray,
     Rd: float,
     gravity0: float,
     nx: int,
@@ -62,7 +62,7 @@ def z_faces(
     Returns:
         jnp.ndarray: z_coordinate on faces
     """
-    z_temp = (Rd / gravity0) * temperature * delta_p_p
+    z_temp = (Rd / gravity0) * temperature * delta_pi_pi
 
     # Initialize z_faces array
     z_faces = jnp.zeros((nx, ny, nz + 1))
