@@ -90,3 +90,15 @@ class AromeReader:
 
     def get_surface_pressure(self):
         return self.ds["SURFPRESSION"][...].T
+
+
+if __name__ == "__main__":
+
+    # 
+    import xarray as xr
+
+    ds = xr.load_dataset("files/arome_teamx/historic.arome.nc", engine="netcdf4")
+    df = ds[["hybrid_coef_A", "hybrid_coef_B"]].to_dataframe()
+    df.to_csv("files/arome_hybrid_coordinate.csv")
+
+

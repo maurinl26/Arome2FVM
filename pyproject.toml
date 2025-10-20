@@ -8,6 +8,7 @@ dependencies = [
     "matplotlib>=3.10.6",
     "netcdf4>=1.7.2",
     "typer>=0.19.2",
+    "xarray[io]>=2025.6.1",
 ]
 
 [build-system]
