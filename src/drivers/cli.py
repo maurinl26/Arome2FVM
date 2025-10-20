@@ -27,7 +27,8 @@ def convert_vertical_coordinate(
 
     Args:
         arome_file (str): arome raw data (.nc)
-        config_file (str): config file (.yml) from FVM
+      # Reads AROME file
+    arome2fvm = Arome(arome_file)  config_file (str): config file (.yml) from FVM
         data_file (str): output file containing vertical coordinates and orography
     """
 
@@ -37,6 +38,19 @@ def convert_vertical_coordinate(
     if data_file is not None:
         write_state(arome2fvm, data_file)
         
+        
+@app.command()
+def extract_pressure_levels(
+    arome_file: Annotated[Path, typer.Option(help=".nc datafile with Arome raw fields")],
+    data_file: Annotated[
+        Path, typer.Option(help=".nc datafile to dump post-processed file")
+    ],
+):
+    
+    # Reads AROME file
+    arome2fvm = Arome(arome_file)
+    print(type(arome2fvm.hybrid_coef_A))
+    print(type(arome2fvm.hybrid_coef_B))    
         
 @app.command()
 def plot_vertical_coordinate(

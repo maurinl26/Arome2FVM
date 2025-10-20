@@ -7,7 +7,7 @@ import fvms.model.config
 import fvms.model.fields
 from fvms.genutils.log import init_logging
 from fvms.model.driver import model_driver
-from arome2fvm.arome2fvm import Arome2FVM
+from arome2fvm.arome2fvm import Arome
 from arome2fvm.writer import write_state
 
 logging.getLogger(__name__)
