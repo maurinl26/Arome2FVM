@@ -5,8 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "jax>=0.4.0",
+    "jaxlib>=0.4.0",
     "matplotlib>=3.10.6",
     "netcdf4>=1.7.2",
+    "numpy>=2.2.6",
     "typer>=0.19.2",
     "xarray[io]>=2025.6.1",
 ]
@@ -14,6 +17,14 @@ dependencies = [
 [build-system]
 build-backend = 'setuptools.build_meta'
 requires = ['setuptools>=65.5.0', 'wheel']
+
+[dependency-groups]
+macos = [
+    "jax-metal>=0.1.1",
+]
+test = [
+    "pytest>=9.0.1",
+]
 
 [project.scripts]
 arome2fvm = "drivers.cli:app"

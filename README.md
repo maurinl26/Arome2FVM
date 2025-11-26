@@ -37,6 +37,10 @@ Command for conversion of an .fa file to a .nc file :
         --fig-file ./config/zcr.png
 ```
 
+## Implementation in Jax
+
+The code can run on GPUs/TPUs with Jax. [Changes](/JAX_MIGRATION_SUMMARY.md).
+
 ## Calculations
 
 Conversions from mass based coordinates to height based following ones are implemented following Arome.
