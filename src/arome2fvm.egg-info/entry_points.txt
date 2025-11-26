@@ -1,0 +1,2 @@
+[console_scripts]
+arome2fvm = drivers.cli:app

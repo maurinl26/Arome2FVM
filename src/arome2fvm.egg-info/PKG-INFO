@@ -1,0 +1,56 @@
+Metadata-Version: 2.4
+Name: arome2fvm
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: jax>=0.4.0
+Requires-Dist: jaxlib>=0.4.0
+Requires-Dist: matplotlib>=3.10.6
+Requires-Dist: netcdf4>=1.7.2
+Requires-Dist: numpy>=2.2.6
+Requires-Dist: typer>=0.19.2
+Requires-Dist: xarray[io]>=2025.6.1
+
+# Arome2FVM
+
+Conversion tool from AROME state variables to FVM ones. Among transformations, mass based coordinate is translated to height based terrain following coordinate, vertical wind is computed from vertical divergence, and exner pressure and potential temperature are computed.
+
+## Installation
+
+```bash
+    git clone https://github.com:maurinl26/Arome2FVM.git
+    cd $WORKDIR/Arome2FVM
+    uv venv
+    source .venv/bin/activate
+```
+## EpyGram for raw Arome file .fa to .nc
+
+Conversion from .fa file to .nc file is performed with EPyGram software : https://github.com/UMR-CNRM/EPyGrAM
+
+Command for conversion of an .fa file to a .nc file :
+```bash
+    uv run epy_conv.py ./files/historic.arome.fa -o nc
+```
+
+## Extraction of orography and vertical coordinates
+
+- Convert vertical coordinate + orography :
+
+```bash
+    uv run arome2fvm convert-vertical-coordinate \
+     --arome-file ../files/historic.arome.nc \
+     --data-file ./config/arome.nc
+```
+
+- Plot Z coordinate :
+
+```bash
+    uv run arome2fvm plot-vertical-coordinate \
+        --data-file ./config/arome.nc \
+        --fig-file ./config/zcr.png
+```
+
+## Calculations
+
+Conversions from mass based coordinates to height based following ones are implemented following Arome.

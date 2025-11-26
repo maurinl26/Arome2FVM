@@ -13,7 +13,19 @@ from operators.mass2height import mass2height_coordinates
 
 from functools import cached_property
 
-from arome2fvm.levels import LevelOrder
+from enum import Enum
+
+
+class LevelOrder(Enum):
+    """Define order of levels indexing
+
+    TOP_TO_BOTTOM is for axis with 0 at the top
+    BOTTOM_TO_TOP is for axis with 0 at the ground level
+    """
+
+    TOP_TO_BOTTOM = -1
+    BOTTOM_TO_TOP = 1
+
 
 
 class Arome:
